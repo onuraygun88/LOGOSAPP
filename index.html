@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGOSAPP - Operasyon Yönetimi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- LOGOS KİMYA KURUMSAL RENK PALETİ --- */
+        :root {
+            --logos-blue: #004481;
+            --logos-light-blue: #005f9e;
+            --logos-gray: #f4f6f9;      
+            --text-dark: #2c3e50;       
+            --accent-green: #27ae60;    
+            --accent-orange: #f39c12;   
+        }
+
+        body { font-family: 'Segoe UI', 'Roboto', sans-serif; margin: 0; background-color: var(--logos-gray); color: var(--text-dark); }
+        .header { background-color: var(--logos-blue); padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000; border-bottom: 3px solid var(--accent-orange); }
+        .header-content { display: flex; align-items: center; justify-content: center; gap: 15px; max-width: 800px; margin: 0 auto; }
+        .logo-container { background: white; padding: 5px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .header-logo { height: 45px; width: auto; object-fit: contain; }
+        .header-text h1 { margin: 0; font-size: 24px; color: white; font-weight: 800; letter-spacing: 1px; }
+        .header-text span { font-size: 13px; color: #ecf0f1; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; display: block; margin-top: -2px; }
+        
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; padding-bottom: 80px; }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border-left: 5px solid var(--logos-blue); transition: all 0.3s ease; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .card.tamamlandi { border-left-color: var(--accent-green); opacity: 0.8; }
+        
+        .row { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
+        .label { font-weight: 600; color: #95a5a6; font-size: 0.85em; text-transform: uppercase; }
+        .value { color: var(--text-dark); font-weight: 600; font-size: 1.05em; }
+        
+        .btn { display: block; width: 100%; padding: 14px; margin-top: 15px; border: none; border-radius: 8px; color: white; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-map { background-color: white; color: var(--logos-blue); border: 1px solid var(--logos-blue); box-shadow: none; margin-top: 8px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; text-decoration: none; }
+        .btn-map:hover { background-color: #f0f7ff; }
+        
+        .btn-action { background-color: var(--logos-blue); }
+        .btn-finish { background-color: var(--accent-green); }
+        
+        .tabs { display: flex; background: white; margin-bottom: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tab { flex: 1; padding: 16px; text-align: center; cursor: pointer; color: #95a5a6; font-weight: 600; transition: 0.3s; border-bottom: 3px solid transparent; }
+        .tab.active { color: var(--logos-blue); background: #fdfdfd; border-bottom: 3px solid var(--logos-blue); }
+        .hidden { display: none; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 15px; background: #fafafa; transition: 0.3s; }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+        .status-atandi { background-color: #ebf5fb; color: var(--logos-blue); }
+        .status-tamamlandi { background-color: #eafaf1; color: var(--accent-green); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-container">
+                <img src="https://www.logoskimya.com/img/kategoriler/coz_3755772.jpg" alt="Logos Kimya Logo" class="header-logo">
+            </div>
+            <div class="header-text">
+                <h1>LOGOSAPP</h1>
+                <span>OPERASYON SİSTEMİ</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="padding-bottom: 5px;">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('sofor')"><i class="fas fa-shipping-fast"></i> Sürücü Paneli</div>
+            <div class="tab" onclick="switchTab('admin')"><i class="fas fa-user-shield"></i> Yönetim Paneli</div>
+        </div>
+    </div>
+
+    <div id="sofor-view" class="container">
+        <h4 style="color:var(--text-dark); margin:0 0 15px 5px; opacity:0.7;">📋 Sürücü Görev Listesi</h4>
+        <div id="job-list"></div>
+        <div id="no-jobs" style="text-align:center; color:#bdc3c7; padding: 50px; display:none;">
+            <i class="fas fa-clipboard-check" style="font-size: 50px; margin-bottom: 15px;"></i><br> Aktif görev bulunmuyor.
+        </div>
+    </div>
+
+    <div id="admin-view" class="container hidden">
+        <div class="card" style="border-left-color: var(--accent-orange);">
+            <h3 style="margin-top:0; color:var(--accent-orange); display:flex; align-items:center; gap:10px;"><i class="fas fa-plus-circle"></i> Yeni İş Emri</h3>
+            <input type="text" id="input-musteri" placeholder="Müşteri / Firma Adı">
+            <input type="text" id="input-alinacak" placeholder="📍 Alınacak Adres (Şehir/İlçe/Sokak)">
+            <input type="text" id="input-teslim" placeholder="🏁 Teslim Adresi (Şehir/İlçe/Sokak)">
+            <input type="date" id="input-tarih">
+            <select id="input-sofor">
+                <option value="" disabled selected>Sürücü Seçiniz</option>
+                <option value="ÖZGÜR">ÖZGÜR</option>
+                <option value="İLYAS">İLYAS</option>
+            </select>
+            <button class="btn btn-action" style="background-color: var(--accent-orange);" onclick="yeniIsEkle()">Sisteme Kaydet</button>
+        </div>
+        <h4 style="color:var(--text-dark); margin-left:5px;">🗂 Tüm Operasyon Geçmişi</h4>
+        <div id="admin-list"></div>
+    </div>
+
+    <script>
+        // --- VERİ SİSTEMİ ---
+        let isler = [
+            { id: 1, musteri: "Logos Kimya - Merkez Depo", alinacak: "Ostim OSB Ankara", teslim: "Sincan Fabrika Ankara", sofor: "ÖZGÜR", durum: "Atandı", tarih: "2026-01-09" }
+        ];
+
+        // --- HARİTA YÖNLENDİRME ---
+        function haritayiAc(adres) {
+            if(!adres) return;
+            const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(adres);
+            window.open(url, '_blank');
+        }
+
+        // --- TEAMS BİLDİRİM (CORS DÜZELTİLMİŞ) ---
+        async function teamsBildirimGonder(baslik, mesaj, renk) {
+            const webhookURL = "https://logoskimya.webhook.office.com/webhookb2/1d64652d-b015-4fdb-a222-726174171ef5@8bebdd68-5c2d-43b8-9e0d-3a811448b942/IncomingWebhook/d1d6ada90985421aab20ba37cd17a1aa/a9f7d19c-2447-4fd8-9207-f12ecf94d42a/V2XnqsUWsPr2rdcfvtf8ztSIXemZTPgdTprcK76ZtXXd81";
+            
+            const payload = {
+                "@type": "MessageCard",
+                "@context": "http://schema.org/extensions",
+                "themeColor": renk,
+                "summary": baslik,
+                "sections": [{ "activityTitle": baslik, "activitySubtitle": "LOGOSAPP Bildirim Sistemi", "text": mesaj }]
+            };
+
+            try {
+                await fetch(webhookURL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(payload) 
+                });
+            } catch (e) { 
+                console.error("Teams Hatası:", e); 
+            }
+        }
+
+        function renderSofor() {
+            const list = document.getElementById('job-list');
+            list.innerHTML = "";
+            let activeJobCount = 0;
+            isler.forEach(is => {
+                if(is.durum !== "Tamamlandı") {
+                    activeJobCount++;
+                    let nextStatus = is.durum === "Atandı" ? "Teslim Alındı" : "Tamamlandı";
+                    let badgeClass = is.durum === "Atandı" ? "status-atandi" : "status-tamamlandi";
+                    list.innerHTML += `
+                    <div class="card">
+                        <div class="row"><span class="value">${is.musteri}</span></div>
+                        <div class="row"><span class="label">Durum:</span> <span class="status-badge ${badgeClass}">${is.durum}</span></div>
+                        
+                        <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px;">
+                            <div class="label"><i class="fas fa-map-marker-alt" style="color:var(--accent-orange)"></i> Alınacak:</div>
+                            <div class="value" style="font-size:0.9em;">${is.alinacak}</div>
+                            <a href="javascript:void(0)" class="btn-map" onclick="haritayiAc('${is.alinacak}')"><i class="fas fa-location-arrow"></i> KONUMA GİT</a>
+                        </div>
+
+                        <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px;">
+                            <div class="label"><i class="fas fa-flag-checkered" style="color:var(--accent-green)"></i> Teslim:</div>
+                            <div class="value" style="font-size:0.9em;">${is.teslim}</div>
+                            <a href="javascript:void(0)" class="btn-map" onclick="haritayiAc('${is.teslim}')"><i class="fas fa-directions"></i> TESLİMAT KONUMUNA GİT</a>
+                        </div>
+
+                        <button class="btn ${is.durum === 'Atandı' ? 'btn-action' : 'btn-finish'}" onclick="durumGuncelle(${is.id}, '${nextStatus}')">
+                            ${is.durum === 'Atandı' ? '📦 YÜKÜ TESLİM ALDIM' : '✅ TESLİMATI TAMAMLADIM'}
+                        </button>
+                    </div>`;
+                }
+            });
+            document.getElementById('no-jobs').style.display = activeJobCount === 0 ? 'block' : 'none';
+        }
+
+        function renderAdmin() {
+            const list = document.getElementById('admin-list');
+            list.innerHTML = "";
+            [...isler].reverse().forEach(is => {
+                list.innerHTML += `
+                <div class="card ${is.durum === 'Tamamlandı' ? 'tamamlandi' : ''}">
+                    <div class="row"><b>${is.musteri}</b> <span>👤 ${is.sofor}</span></div>
+                    <div class="row"><span class="label">Durum:</span> <b>${is.durum}</b></div>
+                </div>`;
+            });
+        }
+
+        function yeniIsEkle() {
+            let musteri = document.getElementById('input-musteri').value;
+            let alinacak = document.getElementById('input-alinacak').value;
+            let teslim = document.getElementById('input-teslim').value;
+            let sofor = document.getElementById('input-sofor').value;
+            if(!musteri || !alinacak || !sofor) { alert("Lütfen eksik alanları doldurun!"); return; }
+            
+            isler.push({ id: Date.now(), musteri, alinacak, teslim, sofor, durum: "Atandı", tarih: new Date().toLocaleDateString() });
+            
+            teamsBildirimGonder("🆕 Yeni İş Emri", `**Müşteri:** ${musteri}\n**Sürücü:** ${sofor}\n**Güzergah:** ${alinacak} -> ${teslim}`, "f39c12");
+            
+            alert("İş Emri Kaydedildi.");
+            renderAdmin();
+        }
+
+        function durumGuncelle(id, yeniDurum) {
+            let is = isler.find(x => x.id === id);
+            if(is) {
+                is.durum = yeniDurum;
+                renderSofor();
+                if(yeniDurum === "Tamamlandı") {
+                    teamsBildirimGonder("✅ İş Tamamlandı", `**Müşteri:** ${is.musteri}\n**Sürücü:** ${is.sofor} görevi bitirdi.`, "27ae60");
+                    alert("Görev tamamlandı!");
+                }
+            }
+        }
+
+        function switchTab(tab) {
+            const sView = document.getElementById('sofor-view');
+            const aView = document.getElementById('admin-view');
+            const tabs = document.querySelectorAll('.tab');
+            
+            if(tab === 'sofor') {
+                sView.classList.remove('hidden'); aView.classList.add('hidden');
+                tabs[0].classList.add('active'); tabs[1].classList.remove('active');
+                renderSofor();
+            } else {
+                sView.classList.add('hidden'); aView.classList.remove('hidden');
+                tabs[0].classList.remove('active'); tabs[1].classList.add('active');
+                renderAdmin();
+            }
+        }
+        renderSofor();
+    </script>
+</body>
+</html>
